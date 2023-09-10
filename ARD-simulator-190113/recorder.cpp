@@ -75,7 +75,13 @@ std::vector<std::shared_ptr<Recorder>> Recorder::ImportRecorders(std::string pat
 		int x, y, z;
 		file >> x >> y >> z;
 		if (file.eof()) break;
-		recorders.push_back(std::make_shared<Recorder>(x / Simulation::dh_, y / Simulation::dh_, z / Simulation::dh_, Simulation::duration_ / Simulation::dt_));
+
+		float const xh = x / Simulation::dh_;
+		float const yh = y / Simulation::dh_;
+		float const zh = z / Simulation::dh_;
+		float const duration = Simulation::duration_ / Simulation::dt_;
+
+		recorders.push_back(std::make_shared<Recorder>((int)xh, (int)yh, (int)zh, (int)duration));
 	}
 	file.close();
 

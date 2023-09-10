@@ -1,30 +1,41 @@
 #include "dct_volume.h"
 
-DctVolume::DctVolume(int w, int h, int d) :width_(w), height_(h), depth_(d)
+DctVolume::DctVolume(int w, int h, int d) :m_width(w), m_height(h), m_depth(d)
 {
-	values_ = (double*)calloc(width_*height_*depth_, sizeof(double));
-	modes_ = (double*)calloc(width_*height_*depth_, sizeof(double));
-	//memset(values_, 0, width_*height_*depth_ * sizeof(double));
-	//memset(modes_, 0, width_*height_*depth_ * sizeof(double));
+#if CUFFTFW
+	m_values = (fftwf_complex*)calloc(m_width * m_height * m_depth, sizeof(fftwf_complex));
+	m_modes = (real_t*)calloc(m_width * m_height * m_depth, sizeof(real_t));
+#else
 
-	dct_plan_ = fftw_plan_r2r_3d(depth_, height_, width_, values_, modes_, FFTW_REDFT10, FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);
-	idct_plan_ = fftw_plan_r2r_3d(depth_, height_, width_, modes_, values_, FFTW_REDFT01, FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);
+	int n = m_width * m_height * m_depth;
+	m_values = (real_t*)calloc(n, sizeof(real_t));
+	m_modes = (real_t*)calloc(n, sizeof(real_t));
+	//m_modes = (fftwf_complex*)calloc(n, sizeof(fftwf_complex));
+	
+	// FFTW_REDFT10 == DCT-II (the DCT)
+	m_dct = fftwf_plan_r2r_3d(m_depth, m_height, m_width, m_values, m_modes, FFTW_REDFT10, FFTW_REDFT10, FFTW_REDFT10, FFTW_MEASURE);
+	//m_dct = fftwf_plan_dft_r2c_3d(m_depth, m_height, m_width, m_values, m_modes, FFTW_MEASURE);
 
+	// FFTW_REDFT01 == IDCT-III (the IDCT)
+	m_idct = fftwf_plan_r2r_3d(m_depth, m_height, m_width, m_modes, m_values, FFTW_REDFT01, FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);
+	//m_idct = fftwf_plan_dft_c2r_3d(m_depth, m_height, m_width, m_modes, m_values, FFTW_MEASURE);
+#endif
 }
 
 DctVolume::~DctVolume()
 {
-	fftw_destroy_plan(dct_plan_);
-	fftw_destroy_plan(idct_plan_);
-	free(values_);
-	free(modes_);
+	fftwf_destroy_plan(m_dct);
+	fftwf_destroy_plan(m_idct);
+	free(m_values);
+	free(m_modes);
 }
 
 void DctVolume::ExcuteDct()
 {
-	fftw_execute(dct_plan_);
+	fftwf_execute(m_dct);
 	// FFTW3 does not normalize values, so we must perform this
 	// step, or values will be wacky.
+#if 0
 	for (int i = 0; i < depth_; i++)
 	{
 		for (int j = 0; j < height_; j++)
@@ -35,12 +46,21 @@ void DctVolume::ExcuteDct()
 			}
 		}
 	}
+#else
+	int const total = m_depth * m_height * m_width;
+	float const scale = 1.0f / (2.0f * sqrtf(2.0f * m_depth * m_width * m_height));
+	for (int i = 0; i < total; i++)
+	{
+		m_modes[i] *= scale;
+	}
+#endif
 }
 
 void DctVolume::ExcuteIdct()
 {
-	fftw_execute(idct_plan_);
+	fftwf_execute(m_idct); 
 	// Normalization
+#if 0
 	for (int i = 0; i < depth_; i++)
 	{
 		for (int j = 0; j < height_; j++)
@@ -51,24 +71,32 @@ void DctVolume::ExcuteIdct()
 			}
 		}
 	}
+#else
+	int const total = m_depth * m_height * m_width;
+	float const scale = 1.0f / sqrtf(2.0f * m_depth * m_width * m_height);
+	for (int i = 0; i < total; i++)
+	{
+		m_values[i] *= scale;
+	}
+#endif
 }
 
-double DctVolume::get_value(int x, int y, int z)
+real_t DctVolume::get_value(int x, int y, int z)
 {
-	return values_[z * height_ * width_ + y * width_ + x];
+	return m_values[z * m_height * m_width + y * m_width + x];
 }
 
-double DctVolume::get_mode(int x, int y, int z)
+real_t DctVolume::get_mode(int x, int y, int z)
 {
-	return modes_[z * height_ * width_ + y * width_ + x];
+	return m_modes[z * m_height * m_width + y * m_width + x];
 }
 
-void DctVolume::set_value(int x, int y, int z, double v)
+void DctVolume::set_value(int x, int y, int z, real_t v)
 {
-	values_[z * height_ * width_ + y * width_ + x] = v;
+	m_values[z * m_height * m_width + y * m_width + x] = v;
 }
 
-void DctVolume::set_mode(int x, int y, int z, double m)
+void DctVolume::set_mode(int x, int y, int z, real_t m)
 {
-	modes_[z * height_ * width_ + y * width_ + x] = m;
+	m_modes[z * m_height * m_width + y * m_width + x] = m;
 }

@@ -33,7 +33,11 @@ std::vector<std::shared_ptr<SoundSource>> SoundSource::ImportSources(std::string
 		file >> x >> y >> z;
 		if (file.eof()) break;
 
-		sources.push_back(std::make_shared<GaussianSource>(x / Simulation::dh_, y / Simulation::dh_, z / Simulation::dh_));
+		float const xh = x / Simulation::dh_;
+		float const yh = y / Simulation::dh_;
+		float const zh = z / Simulation::dh_;
+
+		sources.push_back(std::make_shared<GaussianSource>((int)xh, (int)yh, (int)zh));
 	}
 	file.close();
 	for (auto source : sources)
@@ -47,7 +51,7 @@ void SoundSource::RecordSource()
 {
 	for (int t = 0; t < Simulation::duration_ / Simulation::dt_; t++)
 	{
-		source_ << this->SampleValue(t) << std::endl;
+		source_ << this->SampleValue((real_t)t) << std::endl;
 	}
 	source_.close();
 }

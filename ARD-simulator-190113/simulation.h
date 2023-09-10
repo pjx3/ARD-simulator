@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <SDL.h>
+#include "types.h"
 
 class Partition;
 class Boundary;
@@ -35,11 +36,11 @@ class Simulation
 
 public:
 
-	static double duration_;
+	static real_t duration_;
 
-	static double dh_;
-	static double dt_;
-	static double c0_;
+	static real_t dh_;
+	static real_t dt_;
+	static real_t c0_;
 	static int n_pml_layers_;
 
 	int time_step_{ 0 };

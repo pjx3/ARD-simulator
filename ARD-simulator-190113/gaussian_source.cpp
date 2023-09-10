@@ -13,8 +13,8 @@ GaussianSource::~GaussianSource()
 {
 }
 
-double GaussianSource::SampleValue(double t)
+real_t GaussianSource::SampleValue(real_t t)
 {
-	double arg = pow(M_PI * ((2 * (Simulation::c0_*Simulation::dt_ / Simulation::dh_) * t) / 6 - 2.0), 2);
-	return 1e9 * exp(-arg);
+	real_t arg = powf((float)M_PI * ((2 * (Simulation::c0_*Simulation::dt_ / Simulation::dh_) * t) / 6 - 2.0f), 2);
+	return 1e9f * expf(-arg);
 }

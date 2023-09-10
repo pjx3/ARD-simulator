@@ -24,27 +24,27 @@ bool is_record = true;
 
 /* Set constant parameters. */
 
-double Partition::absorption_ = 0.5;	// Absorption coefficients of the boundaries.
-double Simulation::duration_ = 2;		// Duration of the whole simulation (seconds).
+real_t Partition::absorption_ = 0.5f;	// Absorption coefficients of the boundaries.
+real_t Simulation::duration_ = 2.0f;	// Duration of the whole simulation (seconds).
 
-double Simulation::dh_ = 0.05;			// Space sampling rate.
-double Simulation::dt_ = 0.625e-4;		// Time sampling rate.
+real_t Simulation::dh_ = 0.05f;			// Space sampling rate.
+real_t Simulation::dt_ = 0.625e-4f;		// Time sampling rate.
 
-//double Simulation::dh_ = 0.1;
-//double Simulation::dt_ = 1.25e-4;
+//real_t Simulation::dh_ = 0.1;
+//real_t Simulation::dt_ = 1.25e-4;
 
-//double Simulation::dh_ = 0.2;
-//double Simulation::dt_ = 2e-4;
+//real_t Simulation::dh_ = 0.2;
+//real_t Simulation::dt_ = 2e-4;
 
-//double Simulation::dh_ = 0.5;
-//double Simulation::dt_ = 6.25e-4;
+//real_t Simulation::dh_ = 0.5;
+//real_t Simulation::dt_ = 6.25e-4;
 
-double Simulation::c0_ = 3.435e2;		// Speed of sound
+real_t Simulation::c0_ = 3.435e2f;		// Speed of sound
 int Simulation::n_pml_layers_ = 5;		// Number of pml layers.
 
 int main()
 {
-	double time1 = omp_get_wtime();		// Record the begining time. Used for showing the cosuming time.
+	real_t time1 = (real_t)omp_get_wtime();		// Record the beginning time. Used for showing the consuming time.
 
 	std::string dir_name = "./output/" + std::to_string(Simulation::dh_) + "_" + std::to_string(Partition::absorption_);
 	CreateDirectory(dir_name.c_str(), NULL);	// Prepare for the output folder.
@@ -54,12 +54,14 @@ int main()
 	std::vector<std::shared_ptr<SoundSource>> sources;
 	std::vector<std::shared_ptr<Recorder>> recorders;
 
+#if 0
 	partitions = Partition::ImportPartitions("./assets/hall.txt");			// Read partition properties from file.
 	sources = SoundSource::ImportSources("./assets/hall-sources.txt");		// Read source properties from file.
 	recorders = Recorder::ImportRecorders("./assets/hall-recorders.txt");	// Read recorder properties from file. Recorder is not mandatory. 
-
-	//partitions = Partition::ImportPartitions("./assets/scene-2.txt");
-	//sources = SoundSource::ImportSources("./assets/sources.txt");
+#else
+	partitions = Partition::ImportPartitions("./assets/scene-1.txt");
+	sources = SoundSource::ImportSources("./assets/sources.txt");
+#endif
 
 	//partitions = Partition::ImportPartitions("./assets/classroom.txt");
 	//sources = SoundSource::ImportSources("./assets/classroom-sources.txt");
@@ -111,10 +113,10 @@ int main()
 
 	bool quit = false;
 	int time_step = 0;
-	int total_time_steps = Simulation::duration_ / Simulation::dt_;
+	int total_time_steps = (int)( Simulation::duration_ / Simulation::dt_ );
 	std::string message;
 
-	double time2 = omp_get_wtime();
+	real_t time2 = (real_t)omp_get_wtime();
 	std::cout << "Initialization finished. (" << time2 - time1 << " s)" << std::endl;
 	std::cout << "############################################################" << std::endl;
 
@@ -167,7 +169,7 @@ int main()
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
-	double time3 = omp_get_wtime();
+	real_t time3 = (real_t)omp_get_wtime();
 	std::cout << std::endl << "Simulation finished. (" << time3 - time1 << " s)" << std::endl;
 	std::cout << "############################################################" << std::endl;
 

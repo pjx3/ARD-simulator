@@ -55,9 +55,9 @@ Partition::~Partition()
 {
 }
 
-std::vector<double> Partition::get_xy_plane(int z)
+std::vector<real_t> Partition::get_xy_plane(int z)
 {
-	std::vector<double> xy_plane;
+	std::vector<real_t> xy_plane;
 	for (int i = 0; i < height_; i++) {
 		for (int j = 0; j < width_; j++) {
 			xy_plane.push_back(get_pressure(j, i, z));
@@ -66,9 +66,9 @@ std::vector<double> Partition::get_xy_plane(int z)
 	return xy_plane;
 }
 
-std::vector<double> Partition::get_yz_plane(int x)
+std::vector<real_t> Partition::get_yz_plane(int x)
 {
-	std::vector<double> yz_plane;
+	std::vector<real_t> yz_plane;
 	for (int i = 0; i < depth_; i++) {
 		for (int j = 0; j < height_; j++) {
 			yz_plane.push_back(get_pressure(x, j, i));
@@ -77,9 +77,9 @@ std::vector<double> Partition::get_yz_plane(int x)
 	return yz_plane;
 }
 
-std::vector<double> Partition::get_xz_plane(int y)
+std::vector<real_t> Partition::get_xz_plane(int y)
 {
-	std::vector<double> xz_plane;
+	std::vector<real_t> xz_plane;
 	for (int i = 0; i < depth_; i++) {
 		for (int j = 0; j < width_; j++) {
 			xz_plane.push_back(get_pressure(j, y, i));
@@ -88,9 +88,9 @@ std::vector<double> Partition::get_xz_plane(int y)
 	return xz_plane;
 }
 
-std::vector<double> Partition::get_xy_forcing_plane(int z)
+std::vector<real_t> Partition::get_xy_forcing_plane(int z)
 {
-	return std::vector<double>();
+	return std::vector<real_t>();
 }
 
 void Partition::AddBoundary(std::shared_ptr<Boundary> boundary)
@@ -162,7 +162,14 @@ std::vector<std::shared_ptr<Partition>> Partition::ImportPartitions(std::string 
 		file >> width >> height >> depth;
 		if (file.eof()) break;
 
-		partitions.push_back(std::make_shared<DctPartition>(x_start / Simulation::dh_, y_start / Simulation::dh_, z_start / Simulation::dh_, width / Simulation::dh_, height / Simulation::dh_, depth / Simulation::dh_));
+		real_t const x = x_start / Simulation::dh_;
+		real_t const y = y_start / Simulation::dh_;
+		real_t const z = z_start / Simulation::dh_;
+		real_t const w = width / Simulation::dh_;
+		real_t const h = height / Simulation::dh_;
+		real_t const d = depth / Simulation::dh_;
+
+		partitions.push_back(std::make_shared<DctPartition>((int)x, (int)y, (int)z, (int)w, (int)h, (int)d));
 	}
 	file.close();
 	return partitions;
@@ -177,7 +184,7 @@ void Partition::Info()
 		<< std::to_string(info_.num_boundaries) << " boundaries; " << std::endl;
 }
 
-void Partition::ComputeSourceForcingTerms(double t)
+void Partition::ComputeSourceForcingTerms(real_t t)
 {
 	for (auto source : sources_)
 	{

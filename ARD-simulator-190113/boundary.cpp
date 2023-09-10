@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-Boundary::Boundary(BoundaryType type, double absorp, std::shared_ptr<Partition> a, std::shared_ptr<Partition> b,
+Boundary::Boundary(BoundaryType type, real_t absorp, std::shared_ptr<Partition> a, std::shared_ptr<Partition> b,
 	int xs, int xe, int ys, int ye, int zs, int ze)
 	: type_(type), absorption_(absorp), a_(a), b_(b), x_start_(xs), x_end_(xe), y_start_(ys), y_end_(ye), z_start_(zs), z_end_(ze)
 {
@@ -20,7 +20,7 @@ Boundary::~Boundary()
 
 void Boundary::ComputeForcingTerms()
 {
-	double coefs[6][6] = {
+	real_t coefs[6][6] = {
 		{  0.0,   0.0,   -2.0,    2.0,   0.0,  0.0 },
 		{  0.0,  -2.0,   27.0,  -27.0,   2.0,  0.0 },
 		{ -2.0,  27.0, -270.0,  270.0, -27.0,  2.0 },
@@ -45,10 +45,10 @@ void Boundary::ComputeForcingTerms()
 				{
 					int left_x = left->width_ + m;
 					int right_x = m;
-					double sip = 0.0;
-					double sip1 = 0.0;
-					double sip2 = 0.0;
-					double fi = 0.0;
+					real_t sip = 0.0;
+					real_t sip1 = 0.0;
+					real_t sip2 = 0.0;
+					real_t fi = 0.0;
 					for (int n = 0; n < 3; n++)
 					{
 						sip1 += coefs[m + 3][n] * left->get_pressure(left->width_ - 3 + n, left_y, left_z);
@@ -61,13 +61,13 @@ void Boundary::ComputeForcingTerms()
 					{
 						//sip = sip1 + sip2;
 						sip = left->include_self_terms_ ? (sip1 + sip2) : sip2;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
 						left->set_force(left_x, left_y, left_z, absorption_*fi);
 					}
 					else {
 						//sip = sip1 + sip2;
 						sip = right->include_self_terms_ ? (sip1 + sip2) : sip1;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
 						right->set_force(right_x, right_y, right_z, absorption_*fi);
 					}
 				}
@@ -93,10 +93,10 @@ void Boundary::ComputeForcingTerms()
 				{
 					int top_y = top->height_ + m;
 					int bottom_y = m;
-					double sip = 0.0;
-					double sip1 = 0.0;
-					double sip2 = 0.0;
-					double fi = 0.0;
+					real_t sip = 0.0;
+					real_t sip1 = 0.0;
+					real_t sip2 = 0.0;
+					real_t fi = 0.0;
 					for (int n = 0; n < 3; n++)
 					{
 						sip1 += coefs[m + 3][n] * top->get_pressure(top_x, top->height_ - 3 + n, top_z);
@@ -109,13 +109,13 @@ void Boundary::ComputeForcingTerms()
 					{
 						//sip = sip1 + sip2;
 						sip = top->include_self_terms_ ? (sip1 + sip2) : sip2;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
 						top->set_force(top_x, top_y, top_z, absorption_*fi);
 					}
 					else {
 						//sip = sip1 + sip2;
 						sip = bottom->include_self_terms_ ? (sip1 + sip2) : sip1;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
 						bottom->set_force(bottom_x, bottom_y, bottom_z, absorption_*fi);
 					}
 				}
@@ -141,10 +141,10 @@ void Boundary::ComputeForcingTerms()
 				{
 					int front_z = front->depth_ + m;
 					int back_z = m;
-					double sip = 0.0;
-					double sip1 = 0.0;
-					double sip2 = 0.0;
-					double fi = 0.0;
+					real_t sip = 0.0;
+					real_t sip1 = 0.0;
+					real_t sip2 = 0.0;
+					real_t fi = 0.0;
 					for (int n = 0; n < 3; n++)
 					{
 						sip1 += coefs[m + 3][n] * front->get_pressure(front_x, front_y, front->depth_ - 3 + n);
@@ -157,13 +157,13 @@ void Boundary::ComputeForcingTerms()
 					{
 						//sip = sip1 + sip2;
 						sip = front->include_self_terms_ ? (sip1 + sip2) : sip2;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
 						front->set_force(front_x, front_y, front_z, absorption_*fi);
 					}
 					else {
 						//sip = sip1 + sip2;
 						sip = back->include_self_terms_ ? (sip1 + sip2) : sip1;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
 						back->set_force(back_x, back_y, back_z, absorption_*fi);
 					}
 				}
@@ -188,10 +188,10 @@ void Boundary::ComputeForcingTerms()
 	//			{
 	//				int front_z = front->depth_ + m;
 	//				int back_z = m;
-	//				double sip = 0.0;
-	//				double sip1 = 0.0;
-	//				double sip2 = 0.0;
-	//				double fi = 0.0;
+	//				real_t sip = 0.0;
+	//				real_t sip1 = 0.0;
+	//				real_t sip2 = 0.0;
+	//				real_t fi = 0.0;
 	//				for (int n = 0; n < 3; n++)
 	//				{
 	//					sip1 += coefs[m + 3][n] * front->get_pressure(front_x, front_y, front->depth_ - 3 + n);
@@ -221,7 +221,7 @@ void Boundary::ComputeForcingTerms()
 
 //void Boundary::ComputeForcingTerms()	// Micheal Oliver edition.
 //{
-//	double coefs[][7] = {
+//	real_t coefs[][7] = {
 //					{ 0,   0,    0,   0,    0,   -2,  2 },
 //					{ 0,   0,    0,   -2,   27,  -27, 2 },
 //					{ 0,   -2,   27,  -270, 270, -27, 2 },
@@ -247,10 +247,10 @@ void Boundary::ComputeForcingTerms()
 //				{
 //					int left_x = left->width_ + m;
 //					int right_x = m;
-//					double sip = 0.0;
-//					double sip1 = 0.0;
-//					double sip2 = 0.0;
-//					double fi = 0.0;
+//					real_t sip = 0.0;
+//					real_t sip1 = 0.0;
+//					real_t sip2 = 0.0;
+//					real_t fi = 0.0;
 //
 //					int coefs_idx = 0;
 //
@@ -286,7 +286,7 @@ void Boundary::ComputeForcingTerms()
 //	}
 //}
 
-std::shared_ptr<Boundary> Boundary::FindBoundary(std::shared_ptr<Partition> a, std::shared_ptr<Partition> b, double absorp)
+std::shared_ptr<Boundary> Boundary::FindBoundary(std::shared_ptr<Partition> a, std::shared_ptr<Partition> b, real_t absorp)
 {
 	int xa_min = a->x_start_;
 	int xa_max = xa_min + a->width_;

@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <fstream>
+#include "types.h"
 
 class SoundSource
 {
@@ -14,7 +15,7 @@ public:
 	SoundSource(int x, int y, int z);
 	~SoundSource();
 
-	virtual double SampleValue(double t) = 0;
+	virtual real_t SampleValue(real_t t) = 0;
 
 	static std::vector<std::shared_ptr<SoundSource>> ImportSources(std::string path);
 

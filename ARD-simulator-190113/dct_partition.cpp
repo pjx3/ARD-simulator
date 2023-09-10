@@ -9,10 +9,10 @@ DctPartition::DctPartition(int xs, int ys, int zs, int w, int h, int d)
 	should_render_ = true;
 	info_.type = "DCT";
 
-	prev_modes_ = (double*)calloc(width_*height_*depth_, sizeof(double));
-	next_modes_ = (double*)calloc(width_*height_*depth_, sizeof(double));
-	cwt_ = (double*)calloc(width_*height_*depth_, sizeof(double));
-	w2_ = (double*)calloc(width_*height_*depth_, sizeof(double));
+	prev_modes_ = (real_t*)calloc(width_*height_*depth_, sizeof(real_t));
+	next_modes_ = (real_t*)calloc(width_*height_*depth_, sizeof(real_t));
+	cwt_ = (real_t*)calloc(width_*height_*depth_, sizeof(real_t));
+	w2_ = (real_t*)calloc(width_*height_*depth_, sizeof(real_t));
 
 	lx2_ = width_ * width_*dh_*dh_;
 	ly2_ = height_ * height_*dh_*dh_;
@@ -25,9 +25,9 @@ DctPartition::DctPartition(int xs, int ys, int zs, int w, int h, int d)
 			for (int k = 1; k <= width_; k++)
 			{
 				int idx = (i - 1) * height_ * width_ + (j - 1) * width_ + (k - 1);
-				double w = c0_ * M_PI * sqrt(i * i / lz2_ + j * j / ly2_ + k * k / lx2_);
+				real_t w = c0_ * (float)M_PI * sqrtf(i * i / lz2_ + j * j / ly2_ + k * k / lx2_);
 				w2_[idx] = w * w;
-				cwt_[idx] = cos(w * dt_);
+				cwt_[idx] = cosf(w * dt_);
 			}
 		}
 	}
@@ -45,6 +45,7 @@ DctPartition::~DctPartition()
 void DctPartition::Update()
 {
 	force_.ExcuteDct();
+#if 0
 	for (int i = 0; i < depth_; i++)
 	{
 		for (int j = 0; j < height_; j++)
@@ -56,29 +57,36 @@ void DctPartition::Update()
 			}
 		}
 	}
-	memcpy((void *)prev_modes_, (void *)pressure_.modes_, depth_ * width_ * height_ * sizeof(double));
-	memcpy((void *)pressure_.modes_, (void *)next_modes_, depth_ * width_ * height_ * sizeof(double));
+	memcpy((void*)prev_modes_, (void*)pressure_.modes_, depth_ * width_ * height_ * sizeof(real_t));
+	memcpy((void*)pressure_.modes_, (void*)next_modes_, depth_ * width_ * height_ * sizeof(real_t));
+#else
+	int total = depth_ * height_ * width_;
+	for (int idx = 0; idx < total; idx++)
+		next_modes_[idx] = 0.999f * (2.0f * pressure_.m_modes[idx] * cwt_[idx] - prev_modes_[idx] + (2.0f * force_.m_modes[idx] / w2_[idx]) * (1.0f - cwt_[idx]));
+	memcpy((void*)prev_modes_, (void*)pressure_.m_modes, depth_ * width_ * height_ * sizeof(real_t));
+	memcpy((void*)pressure_.m_modes, (void*)next_modes_, depth_ * width_ * height_ * sizeof(real_t));
+#endif
 	pressure_.ExcuteIdct();
 }
 
-double* DctPartition::get_pressure_field()
+real_t* DctPartition::get_pressure_field()
 {
-	return pressure_.values_;
+	return pressure_.m_values;
 }
 
-double DctPartition::get_pressure(int x, int y, int z)
+real_t DctPartition::get_pressure(int x, int y, int z)
 {
 	return pressure_.get_value(x, y, z);
 }
 
-void DctPartition::set_force(int x, int y, int z, double f)
+void DctPartition::set_force(int x, int y, int z, real_t f)
 {
 	force_.set_value(x, y, z, f);
 }
 
-std::vector<double> DctPartition::get_xy_forcing_plane(int z)
+std::vector<real_t> DctPartition::get_xy_forcing_plane(int z)
 {
-	std::vector<double> xy_plane;
+	std::vector<real_t> xy_plane;
 	for (int i = 0; i < height_; i++) {
 		for (int j = 0; j < width_; j++) {
 			xy_plane.push_back(get_force(j, i, z));
@@ -87,14 +95,14 @@ std::vector<double> DctPartition::get_xy_forcing_plane(int z)
 	return xy_plane;
 }
 
-double DctPartition::get_force(int x, int y, int z)
+real_t DctPartition::get_force(int x, int y, int z)
 {
 	return force_.get_value(x, y, z);
 }
 
-std::vector<double> DctPartition::get_xy_force_plane(int z)
+std::vector<real_t> DctPartition::get_xy_force_plane(int z)
 {
-	std::vector<double> xy_plane;
+	std::vector<real_t> xy_plane;
 	for (int i = 0; i < height_; i++) {
 		for (int j = 0; j < width_; j++) {
 			xy_plane.push_back(get_force(j, i, z));

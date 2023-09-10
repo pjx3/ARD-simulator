@@ -7,6 +7,6 @@ public:
 	GaussianSource(int x, int y,int z);
 	~GaussianSource();
 
-	virtual double SampleValue(double t);
+	virtual real_t SampleValue(real_t t);
 };
 
