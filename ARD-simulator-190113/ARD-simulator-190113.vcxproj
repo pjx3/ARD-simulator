@@ -52,9 +52,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.2.props" />
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -129,9 +127,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(CUDA_PATH)\include\;$(SolutionDir)SDL2_ttf-2.0.15\include\;$(SolutionDir)SDL2-2.0.9\include\;$(SolutionDir)fftw-3.3.5-dll\$(PlatForm)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Dev\glslang\glslang\Include;$(VK_SDK_PATH)\include;$(SolutionDir)SDL2_ttf-2.0.15\include\;$(SolutionDir)SDL2-2.0.9\include\;$(SolutionDir)fftw-3.3.5-dll\$(PlatForm)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -162,6 +160,7 @@
     <ClInclude Include="partition.h" />
     <ClInclude Include="pml_partition.h" />
     <ClInclude Include="recorder.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="simulation.h" />
     <ClInclude Include="sound_source.h" />
     <ClInclude Include="tools.h" />
@@ -170,8 +169,9 @@
   <ItemGroup>
     <None Include="..\README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ARD-simulator-190113.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.2.targets" />
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

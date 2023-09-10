@@ -1,13 +1,13 @@
 #pragma once
-#define CUFFTFW 0
-#if CUFFTFW
-#include <cufftw.h>
-#else
+
 #include <fftw3.h>
-#endif
 #include <memory>
 #include <cmath>
 #include "types.h"
+
+#define VKFFT_BACKEND 0
+#define VKFFT_MAX_FFT_DIMENSIONS 3
+#include "vkFFT.h"
 
 class DctVolume
 {
@@ -15,7 +15,7 @@ class DctVolume
 	int m_height;
 	int m_depth;
 
-#if CUFFTFW
+#if VKFFT
 	float2* m_values;			
 	float2* m_modes;
 	cufftHandle m_dct;
