@@ -38,6 +38,7 @@ void DctVolume::ExcuteDct()
 {
 	// pressure to modes
 	fftwf_execute(m_dct);
+	m_vkFFTdct->execute();
 	// FFTW3 does not normalize values, so we must perform this
 	// step, or values will be wacky.
 	int const total = m_depth * m_height * m_width;
@@ -52,6 +53,7 @@ void DctVolume::ExcuteIdct()
 {
 	// modes to pressure
 	fftwf_execute(m_idct); 
+	m_vkFFTidct->execute();
 	// Normalization
 	int const total = m_depth * m_height * m_width;
 	float const scale = 1.0f / sqrtf(2.0f * m_depth * m_width * m_height);

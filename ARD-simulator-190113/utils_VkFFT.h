@@ -41,6 +41,8 @@ public:
 	VkFFT_DCT(VkGPU* vkGPU, int dctType, int width, int height, int depth, float* input, float* output);
 	~VkFFT_DCT();
 
+	VkFFTResult execute();
+
 private:
 	VkGPU*				m_vkGPU{nullptr};
 	VkFFTApplication	m_application{};
@@ -54,6 +56,7 @@ private:
 	uint64_t			m_bufferSize{ 0 };
 	VkBuffer			m_buffer{ VK_NULL_HANDLE };
 	VkDeviceMemory		m_bufferDeviceMemory{ VK_NULL_HANDLE };
+	double				m_time{ 0.0 };	// last execution time
 };
 
 VkResult CreateDebugUtilsMessengerEXT(VkGPU* vkGPU, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);

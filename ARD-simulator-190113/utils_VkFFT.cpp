@@ -672,5 +672,25 @@ VkFFT_DCT::VkFFT_DCT(VkGPU* vkGPU, int dctType, int width, int height, int depth
 
 VkFFT_DCT::~VkFFT_DCT()
 {
-	// todo - delete the buffer & bufferDeviceMemory
+	vkDestroyBuffer(m_vkGPU->device, m_buffer, nullptr);
+	vkFreeMemory(m_vkGPU->device, m_bufferDeviceMemory, nullptr);
+	deleteVkFFT(&m_application);
+}
+
+VkFFTResult VkFFT_DCT::execute()
+{
+	VkFFTResult resFFT = VKFFT_SUCCESS;
+
+	uint64_t num_iter = ((uint64_t)4096 * 1024 * 1024) / m_bufferSize;
+	if (num_iter > 1000) num_iter = 1000;
+	if (m_vkGPU->physicalDeviceProperties.vendorID == 0x8086) num_iter /= 4;
+	if (num_iter == 0) num_iter = 1;
+
+	m_time = 0.0;
+	VkFFTLaunchParams launchParams = {};
+	resFFT = performVulkanFFTiFFT(m_vkGPU, &m_application, &launchParams, num_iter, &m_time);
+
+	resFFT = transferDataToCPU(m_vkGPU, m_output, &m_buffer, m_bufferSize);
+
+	return resFFT;
 }
