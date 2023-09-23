@@ -627,13 +627,12 @@ VkFFTResult initVkFFT_DCT(VkGPU* vkGPU, VkFFTApplication* app, int dctType, int 
 	// DCT-III (the inverse DCT)
 	assert((dctType == 2 || dctType == 3));
 
-	// vkFFT application (FFT on GPU using Vulkan)
 	VkFFTConfiguration config = {};
 	config.FFTdim = 3;
 	config.size[0] = width;
 	config.size[1] = height;
 	config.size[2] = depth;
-	config.performDCT = dctType;	// DCT-II or DCT-III
+	config.performDCT = dctType;
 	config.device = &vkGPU->device;
 	config.queue = &vkGPU->queue;
 	config.fence = &vkGPU->fence;
@@ -641,7 +640,7 @@ VkFFTResult initVkFFT_DCT(VkGPU* vkGPU, VkFFTApplication* app, int dctType, int 
 	config.physicalDevice = &vkGPU->physicalDevice;
 	config.isCompilerInitialized = true;	// todo: pass this in
 
-	//Allocate buffer for the input data.
+	// allocate buffer for the input data.
 	uint64_t bufferSize = (uint64_t)sizeof(float) * config.size[0] * config.size[1] * config.size[2];
 	VkBuffer buffer = {};
 	VkDeviceMemory bufferDeviceMemory = {};
