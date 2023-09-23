@@ -1,4 +1,5 @@
 #include "dct_volume.h"
+#include <assert.h>
 
 DctVolume::DctVolume(int w, int h, int d,VkGPU* vkGPU) 
 	: m_width(w)
@@ -16,13 +17,17 @@ DctVolume::DctVolume(int w, int h, int d,VkGPU* vkGPU)
 	// FFTW_REDFT01 == IDCT-III (the IDCT)
 	m_idct = fftwf_plan_r2r_3d(m_depth, m_height, m_width, m_modes, m_values, FFTW_REDFT01, FFTW_REDFT01, FFTW_REDFT01, FFTW_MEASURE);
 
-	// vkFFT plans
-	initVkFFT_DCT(vkGPU, &m_vkFFTdctF, 2, m_width, m_height, m_depth, m_values, m_modes);
-	initVkFFT_DCT(vkGPU, &m_vkFFTdctB, 3, m_width, m_height, m_depth, m_modes, m_values);
+	// vkFFT applications
+	m_vkFFTdct = new VkFFT_DCT(vkGPU, 2, m_width, m_height, m_depth, m_values, m_modes);
+	assert(m_vkFFTdct != nullptr);
+	m_vkFFTidct = new VkFFT_DCT(vkGPU, 3, m_width, m_height, m_depth, m_modes, m_values);
+	assert(m_vkFFTidct != nullptr);
 }
 
 DctVolume::~DctVolume()
 {
+	delete m_vkFFTdct;
+	delete m_vkFFTidct;
 	fftwf_destroy_plan(m_dct);
 	fftwf_destroy_plan(m_idct);
 	free(m_values);

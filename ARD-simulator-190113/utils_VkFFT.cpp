@@ -620,7 +620,14 @@ VkFFTResult destroyVkGPU(VkGPU* vkGPU)
 	return VKFFT_SUCCESS;
 }
 
-VkFFTResult initVkFFT_DCT(VkGPU* vkGPU, VkFFTApplication* app, int dctType, int width, int height, int depth, float* input, float* output)
+VkFFT_DCT::VkFFT_DCT(VkGPU* vkGPU, int dctType, int width, int height, int depth, float* input, float* output)
+	: m_vkGPU(vkGPU)
+	, m_dctType(dctType)
+	, m_width(width)
+	, m_height(height)
+	, m_depth(depth)
+	, m_input(input)
+	, m_output(output)
 {
 	// DCT type must be 2 or 3...
 	// DCT-II (the DCT)
@@ -641,22 +648,29 @@ VkFFTResult initVkFFT_DCT(VkGPU* vkGPU, VkFFTApplication* app, int dctType, int 
 	config.isCompilerInitialized = true;	// todo: pass this in
 
 	// allocate buffer for the input data.
-	uint64_t bufferSize = (uint64_t)sizeof(float) * config.size[0] * config.size[1] * config.size[2];
-	VkBuffer buffer = {};
-	VkDeviceMemory bufferDeviceMemory = {};
-	VkFFTResult resFFT = allocateBuffer(vkGPU, &buffer, &bufferDeviceMemory, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_HEAP_DEVICE_LOCAL_BIT, bufferSize);
+	m_bufferSize = (uint64_t)sizeof(float) * config.size[0] * config.size[1] * config.size[2];
+	m_buffer = {};
+	m_bufferDeviceMemory = {};
+	VkFFTResult resFFT = allocateBuffer(vkGPU, 
+										&m_buffer, 
+										&m_bufferDeviceMemory, 
+										VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
+										VK_MEMORY_HEAP_DEVICE_LOCAL_BIT, 
+										m_bufferSize);
 	assert(resFFT == VKFFT_SUCCESS);
 	
-	config.buffer = &buffer;
-	config.bufferSize = &bufferSize;
+	config.buffer = &m_buffer;
+	config.bufferSize = &m_bufferSize;
 
-	resFFT = transferDataFromCPU(vkGPU, input, &buffer, bufferSize);
+	resFFT = transferDataFromCPU(vkGPU, input, &m_buffer, m_bufferSize);
 	assert(resFFT == VKFFT_SUCCESS);
 
-	// Initialize application. 
-	// This function loads shaders, creates pipeline and configures FFT based on configuration file. No buffer allocations inside VkFFT library.  
-	resFFT = initializeVkFFT(app, config);
+	// loads shaders, creates pipeline and configures FFT based on configuration file. No buffer allocations inside VkFFT library.  
+	resFFT = initializeVkFFT(&m_application, config);
 	assert(resFFT == VKFFT_SUCCESS);
+}
 
-	return resFFT;
+VkFFT_DCT::~VkFFT_DCT()
+{
+	// todo - delete the buffer & bufferDeviceMemory
 }

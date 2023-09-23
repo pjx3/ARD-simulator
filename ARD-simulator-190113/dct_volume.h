@@ -21,15 +21,15 @@ public:
 	void set_mode(int x, int y, int z, real_t m);
 
 private:
-	int					m_width;
-	int					m_height;
-	int					m_depth;
-	real_t*				m_values;
-	real_t*				m_modes;
-	fftwf_plan			m_dct;
-	fftwf_plan			m_idct;
-	VkFFTApplication	m_vkFFTdctF;	// forward DCT (DCT-II)
-	VkFFTApplication	m_vkFFTdctB;	// backward DCT (DCT-III)
+	int			m_width;
+	int			m_height;
+	int			m_depth;
+	real_t*		m_values;
+	real_t*		m_modes;
+	fftwf_plan	m_dct;
+	fftwf_plan	m_idct;
+	VkFFT_DCT*	m_vkFFTdct;		// forward DCT (DCT-II)
+	VkFFT_DCT*	m_vkFFTidct;	// inverse DCT (DCT-III)
 
 	friend class Partition;
 	friend class DctPartition;

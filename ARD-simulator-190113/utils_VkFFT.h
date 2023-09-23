@@ -35,6 +35,27 @@ struct VkFFTUserSystemParameters
 	uint64_t loadApplicationFromString;
 };
 
+class VkFFT_DCT
+{
+public:
+	VkFFT_DCT(VkGPU* vkGPU, int dctType, int width, int height, int depth, float* input, float* output);
+	~VkFFT_DCT();
+
+private:
+	VkGPU*				m_vkGPU{nullptr};
+	VkFFTApplication	m_application{};
+	VkFFTLaunchParams	m_launchParams{};
+	int					m_width;
+	int					m_height;
+	int					m_depth;
+	int					m_dctType;
+	float*				m_input{ nullptr };
+	float*				m_output{ nullptr };
+	uint64_t			m_bufferSize{ 0 };
+	VkBuffer			m_buffer{ VK_NULL_HANDLE };
+	VkDeviceMemory		m_bufferDeviceMemory{ VK_NULL_HANDLE };
+};
+
 VkResult CreateDebugUtilsMessengerEXT(VkGPU* vkGPU, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 void DestroyDebugUtilsMessengerEXT(VkGPU* vkGPU, const VkAllocationCallbacks* pAllocator);
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
