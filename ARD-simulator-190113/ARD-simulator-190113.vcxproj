@@ -127,16 +127,17 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Dev\glslang\glslang\Include;$(VK_SDK_PATH)\include;$(SolutionDir)SDL2_ttf-2.0.15\include\;$(SolutionDir)SDL2-2.0.9\include\;$(SolutionDir)fftw-3.3.5-dll\$(PlatForm)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)glslang\include\glslang\include;$(VK_SDK_PATH)\include;$(SolutionDir)SDL2_ttf-2.0.15\include\;$(SolutionDir)SDL2-2.0.9\include\;$(SolutionDir)fftw-3.3.5-dll\$(PlatForm)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;VK_API_VERSION=13;VKFFT_BACKEND=0;VKFFT_MAX_FFT_DIMENSIONS=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(CUDA_PATH)\lib\$(Platform);$(SolutionDir)fftw-3.3.5-dll\$(PlatForm);$(SolutionDir)SDL2_ttf-2.0.15\lib\$(PlatForm);$(SolutionDir)SDL2-2.0.9\lib\$(PlatForm);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfftw3f-3.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\lib;$(SolutionDir)fftw-3.3.5-dll\$(PlatForm);$(SolutionDir)SDL2_ttf-2.0.15\lib\$(PlatForm);$(SolutionDir)SDL2-2.0.9\lib\$(PlatForm);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfftw3f-3.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;vulkan-1.lib;glslang.lib;machineindependent.lib;osdependent.lib;genericcodegen.lib;oglcompiler.lib;spirv.lib;spirv-tools.lib;spirv-tools-opt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -151,6 +152,7 @@
     <ClCompile Include="sound_source.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="tools.cpp" />
+    <ClCompile Include="utils_VkFFT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="boundary.h" />
@@ -165,6 +167,8 @@
     <ClInclude Include="sound_source.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="types.h" />
+    <ClInclude Include="utils_VkFFT.h" />
+    <ClInclude Include="vkFFT.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

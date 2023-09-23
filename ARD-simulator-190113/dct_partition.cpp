@@ -3,8 +3,10 @@
 #include "dct_partition.h"
 
 
-DctPartition::DctPartition(int xs, int ys, int zs, int w, int h, int d)
-	: Partition(xs, ys, zs, w, h, d), pressure_(w, h, d), force_(w, h, d)
+DctPartition::DctPartition(int xs, int ys, int zs, int w, int h, int d, VkGPU* vkGPU)
+	: Partition(xs, ys, zs, w, h, d)
+	, pressure_(w, h, d, vkGPU)
+	, force_(w, h, d, vkGPU)
 {
 	should_render_ = true;
 	info_.type = "DCT";

@@ -148,7 +148,7 @@ void Partition::AddSource(std::shared_ptr<SoundSource> source)
 	sources_.push_back(source);
 }
 
-std::vector<std::shared_ptr<Partition>> Partition::ImportPartitions(std::string path)
+std::vector<std::shared_ptr<Partition>> Partition::ImportPartitions(std::string path, VkGPU* vkGPU)
 {
 	std::vector<std::shared_ptr<Partition>> partitions;
 
@@ -169,7 +169,7 @@ std::vector<std::shared_ptr<Partition>> Partition::ImportPartitions(std::string 
 		real_t const h = height / Simulation::dh_;
 		real_t const d = depth / Simulation::dh_;
 
-		partitions.push_back(std::make_shared<DctPartition>((int)x, (int)y, (int)z, (int)w, (int)h, (int)d));
+		partitions.push_back(std::make_shared<DctPartition>((int)x, (int)y, (int)z, (int)w, (int)h, (int)d, vkGPU));
 	}
 	file.close();
 	return partitions;

@@ -18,6 +18,8 @@
 #include "gaussian_source.h"
 #include "recorder.h"
 
+#include "utils_VkFFT.h"
+
 using namespace std;
 
 bool is_record = true;
@@ -42,6 +44,7 @@ real_t Simulation::dt_ = 0.625e-4f;		// Time sampling rate.
 real_t Simulation::c0_ = 3.435e2f;		// Speed of sound
 int Simulation::n_pml_layers_ = 5;		// Number of pml layers.
 
+
 int main()
 {
 	real_t time1 = (real_t)omp_get_wtime();		// Record the beginning time. Used for showing the consuming time.
@@ -49,6 +52,9 @@ int main()
 	std::string dir_name = "./output/" + std::to_string(Simulation::dh_) + "_" + std::to_string(Partition::absorption_);
 	CreateDirectory(dir_name.c_str(), NULL);	// Prepare for the output folder.
 												// ! Without this and the corresponding folder does not exist, the program will not write the output data.
+
+	VkGPU vkGPU = {};
+	initVkGPU(&vkGPU);
 
 	std::vector<std::shared_ptr<Partition>> partitions;
 	std::vector<std::shared_ptr<SoundSource>> sources;
@@ -59,7 +65,7 @@ int main()
 	sources = SoundSource::ImportSources("./assets/hall-sources.txt");		// Read source properties from file.
 	recorders = Recorder::ImportRecorders("./assets/hall-recorders.txt");	// Read recorder properties from file. Recorder is not mandatory. 
 #else
-	partitions = Partition::ImportPartitions("./assets/scene-1.txt");
+	partitions = Partition::ImportPartitions("./assets/scene-1.txt", &vkGPU);
 	sources = SoundSource::ImportSources("./assets/sources.txt");
 #endif
 
@@ -169,10 +175,11 @@ int main()
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
+	destroyVkGPU(&vkGPU);
+
 	real_t time3 = (real_t)omp_get_wtime();
 	std::cout << std::endl << "Simulation finished. (" << time3 - time1 << " s)" << std::endl;
 	std::cout << "############################################################" << std::endl;
 
 	return 0;
 }
-

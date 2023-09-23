@@ -58,7 +58,7 @@ public:
 
 	void AddBoundary(std::shared_ptr<Boundary> boundary);
 	void AddSource(std::shared_ptr<SoundSource> source);
-	static std::vector<std::shared_ptr<Partition>> ImportPartitions(std::string path);
+	static std::vector<std::shared_ptr<Partition>> ImportPartitions(std::string path, struct VkGPU* vkGPU);
 	void Info();
 
 	void ComputeSourceForcingTerms(real_t t);

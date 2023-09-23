@@ -1,4 +1,5 @@
 #pragma once
+
 #include "partition.h"
 #include "dct_volume.h"
 
@@ -15,7 +16,7 @@ class DctPartition : public Partition
 	real_t *next_modes_{ nullptr };
 
 public:
-	DctPartition(int xs, int ys, int zs, int w, int h, int d);
+	DctPartition(int xs, int ys, int zs, int w, int h, int d, VkGPU* vkGPU);
 	~DctPartition();
 
 	virtual void Update();
@@ -29,4 +30,3 @@ public:
 	std::vector<real_t> get_xy_force_plane(int z);
 	friend class Boundary;
 };
-

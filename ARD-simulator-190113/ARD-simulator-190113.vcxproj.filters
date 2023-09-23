@@ -48,6 +48,9 @@
     <ClCompile Include="recorder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utils_VkFFT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="simulation.h">
@@ -84,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils_VkFFT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vkFFT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
