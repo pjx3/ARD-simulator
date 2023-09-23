@@ -679,8 +679,6 @@ VkFFT_DCT::~VkFFT_DCT()
 
 VkFFTResult VkFFT_DCT::execute()
 {
-	VkFFTResult resFFT = VKFFT_SUCCESS;
-
 	uint64_t num_iter = ((uint64_t)4096 * 1024 * 1024) / m_bufferSize;
 	if (num_iter > 1000) num_iter = 1000;
 	if (m_vkGPU->physicalDeviceProperties.vendorID == 0x8086) num_iter /= 4;
@@ -688,9 +686,11 @@ VkFFTResult VkFFT_DCT::execute()
 
 	m_time = 0.0;
 	VkFFTLaunchParams launchParams = {};
-	resFFT = performVulkanFFTiFFT(m_vkGPU, &m_application, &launchParams, num_iter, &m_time);
+	VkFFTResult result = performVulkanFFTiFFT(m_vkGPU, &m_application, &launchParams, num_iter, &m_time);
+	assert(result == VKFFT_SUCCESS);
 
-	resFFT = transferDataToCPU(m_vkGPU, m_output, &m_buffer, m_bufferSize);
+	result = transferDataToCPU(m_vkGPU, m_output, &m_buffer, m_bufferSize);
+	assert(result == VKFFT_SUCCESS);
 
-	return resFFT;
+	return result;
 }
