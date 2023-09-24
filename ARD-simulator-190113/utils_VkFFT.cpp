@@ -478,7 +478,7 @@ VkFFTResult devices_list()
 	return VKFFT_SUCCESS;
 }
 
-VkFFTResult performVulkanFFT(VkGPU* vkGPU, VkFFTApplication* app, VkFFTLaunchParams* launchParams, int inverse, uint64_t num_iter) 
+VkFFTResult performVulkanFFT(VkGPU* vkGPU, VkFFTApplication* app, VkFFTLaunchParams* launchParams, int inverse, uint64_t num_iter, double* time_result) 
 {
 	VkFFTResult resFFT = VKFFT_SUCCESS;
 	VkResult res = VK_SUCCESS;
@@ -511,7 +511,7 @@ VkFFTResult performVulkanFFT(VkGPU* vkGPU, VkFFTApplication* app, VkFFTLaunchPar
 	if (res != 0) return VKFFT_ERROR_FAILED_TO_WAIT_FOR_FENCES;
 	std::chrono::steady_clock::time_point timeEnd = std::chrono::steady_clock::now();
 	double totTime = std::chrono::duration_cast<std::chrono::microseconds>(timeEnd - timeSubmit).count() * 0.001;
-	//printf("Pure submit execution time per num_iter: %.3f ms\n", totTime / num_iter);
+	time_result[0] = totTime / num_iter;
 	res = vkResetFences(vkGPU->device, 1, &vkGPU->fence);
 	if (res != 0) return VKFFT_ERROR_FAILED_TO_RESET_FENCES;
 	vkFreeCommandBuffers(vkGPU->device, vkGPU->commandPool, 1, &commandBuffer);
@@ -646,6 +646,7 @@ VkFFT_DCT::VkFFT_DCT(VkGPU* vkGPU, int dctType, int width, int height, int depth
 	config.commandPool = &vkGPU->commandPool;
 	config.physicalDevice = &vkGPU->physicalDevice;
 	config.isCompilerInitialized = true;	// todo: pass this in
+	config.makeForwardPlanOnly = true;
 
 	// allocate buffer for the input data.
 	m_bufferSize = (uint64_t)sizeof(float) * config.size[0] * config.size[1] * config.size[2];
@@ -676,17 +677,11 @@ VkFFT_DCT::~VkFFT_DCT()
 
 VkFFTResult VkFFT_DCT::execute()
 {
-	uint64_t num_iter = ((uint64_t)4096 * 1024 * 1024) / m_bufferSize;
-	if (num_iter > 1000) num_iter = 1000;
-	if (m_vkGPU->physicalDeviceProperties.vendorID == 0x8086) num_iter /= 4;
-	if (num_iter == 0) num_iter = 1;
-
 	VkFFTResult result = transferDataFromCPU(m_vkGPU, m_input, &m_buffer, m_bufferSize);
 	assert(result == VKFFT_SUCCESS);
 
-	m_time = 0.0;
 	VkFFTLaunchParams launchParams = {};
-	result = performVulkanFFTiFFT(m_vkGPU, &m_application, &launchParams, num_iter, &m_time);
+	result = performVulkanFFT(m_vkGPU, &m_application, &launchParams, -1, 1, &m_time);
 	assert(result == VKFFT_SUCCESS);
 
 	result = transferDataToCPU(m_vkGPU, m_output, &m_buffer, m_bufferSize);
