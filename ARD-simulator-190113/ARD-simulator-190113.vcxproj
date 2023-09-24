@@ -152,7 +152,7 @@
     <ClCompile Include="recorder.cpp" />
     <ClCompile Include="simulation.cpp" />
     <ClCompile Include="sound_source.cpp" />
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="utils_VkFFT.cpp" />
   </ItemGroup>

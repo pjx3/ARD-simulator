@@ -44,7 +44,6 @@ real_t Simulation::dt_ = 0.625e-4f;		// Time sampling rate.
 real_t Simulation::c0_ = 3.435e2f;		// Speed of sound
 int Simulation::n_pml_layers_ = 5;		// Number of pml layers.
 
-
 int main()
 {
 	real_t time1 = (real_t)omp_get_wtime();		// Record the beginning time. Used for showing the consuming time.
@@ -174,6 +173,10 @@ int main()
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+
+	for (auto& partition : partitions)
+		partition.reset();
+	simulation.reset();
 
 	destroyVkGPU(&vkGPU);
 

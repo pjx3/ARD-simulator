@@ -1,10 +1,11 @@
 #include "dct_volume.h"
 #include <assert.h>
 
-DctVolume::DctVolume(int w, int h, int d,VkGPU* vkGPU) 
+DctVolume::DctVolume(int w, int h, int d, VkGPU* vkGPU) 
 	: m_width(w)
 	, m_height(h)
 	, m_depth(d)
+	, m_gpu(true)
 {
 	int numCells = m_width * m_height * m_depth;
 
@@ -37,14 +38,15 @@ DctVolume::~DctVolume()
 void DctVolume::ExcuteDct()
 {
 	// pressure to modes
-	fftwf_execute(m_dct);
-	m_vkFFTdct->execute();
-	// FFTW3 does not normalize values, so we must perform this
-	// step, or values will be wacky.
+	if (m_gpu)	
+		m_vkFFTdct->execute();
+	else		
+		fftwf_execute(m_dct);
+
+	// FFTW3 does not normalize values, so we must perform this step, or values will be wacky.
 	int const total = m_depth * m_height * m_width;
 	float const scale = 1.0f / (2.0f * sqrtf(2.0f * m_depth * m_width * m_height));
-	for (int i = 0; i < total; i++)
-	{
+	for (int i = 0; i < total; i++) {
 		m_modes[i] *= scale;
 	}
 }
@@ -52,13 +54,15 @@ void DctVolume::ExcuteDct()
 void DctVolume::ExcuteIdct()
 {
 	// modes to pressure
-	fftwf_execute(m_idct); 
-	m_vkFFTidct->execute();
+	if (m_gpu)	
+		m_vkFFTidct->execute();
+	else		
+		fftwf_execute(m_idct);
+
 	// Normalization
 	int const total = m_depth * m_height * m_width;
 	float const scale = 1.0f / sqrtf(2.0f * m_depth * m_width * m_height);
-	for (int i = 0; i < total; i++)
-	{
+	for (int i = 0; i < total; i++)	{
 		m_values[i] *= scale;
 	}
 }

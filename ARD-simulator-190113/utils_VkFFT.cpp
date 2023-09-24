@@ -662,9 +662,6 @@ VkFFT_DCT::VkFFT_DCT(VkGPU* vkGPU, int dctType, int width, int height, int depth
 	config.buffer = &m_buffer;
 	config.bufferSize = &m_bufferSize;
 
-	resFFT = transferDataFromCPU(vkGPU, input, &m_buffer, m_bufferSize);
-	assert(resFFT == VKFFT_SUCCESS);
-
 	// loads shaders, creates pipeline and configures FFT based on configuration file. No buffer allocations inside VkFFT library.  
 	resFFT = initializeVkFFT(&m_application, config);
 	assert(resFFT == VKFFT_SUCCESS);
@@ -684,9 +681,12 @@ VkFFTResult VkFFT_DCT::execute()
 	if (m_vkGPU->physicalDeviceProperties.vendorID == 0x8086) num_iter /= 4;
 	if (num_iter == 0) num_iter = 1;
 
+	VkFFTResult result = transferDataFromCPU(m_vkGPU, m_input, &m_buffer, m_bufferSize);
+	assert(result == VKFFT_SUCCESS);
+
 	m_time = 0.0;
 	VkFFTLaunchParams launchParams = {};
-	VkFFTResult result = performVulkanFFTiFFT(m_vkGPU, &m_application, &launchParams, num_iter, &m_time);
+	result = performVulkanFFTiFFT(m_vkGPU, &m_application, &launchParams, num_iter, &m_time);
 	assert(result == VKFFT_SUCCESS);
 
 	result = transferDataToCPU(m_vkGPU, m_output, &m_buffer, m_bufferSize);
