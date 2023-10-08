@@ -11,21 +11,22 @@
 #include <omp.h>
 
 
-Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std::vector<std::shared_ptr<SoundSource>> &sources)
-	: partitions_(partitions), sources_(sources)
+Simulation::Simulation( std::vector<std::shared_ptr<Partition>>& partitions,
+						std::vector<std::shared_ptr<SoundSource>>& sources )
+	: m_partitions(partitions)
+	, m_sources(sources)
 {
-
 	// Find all shared boundaries of partitions
-	for (int i = 0; i < partitions_.size(); i++)
+	for (int i = 0; i < m_partitions.size(); i++)
 	{
-		auto part_a = partitions_[i];
-		for (int j = i + 1; j < partitions_.size(); j++)
+		auto part_a = m_partitions[i];
+		for (int j = i + 1; j < m_partitions.size(); j++)
 		{
-			auto part_b = partitions_[j];
+			auto part_b = m_partitions[j];
 			auto boundary = Boundary::FindBoundary(part_a, part_b);
 			if (boundary)
 			{
-				boundaries_.push_back(boundary);
+				m_boundaries.push_back(boundary);
 				part_a->AddBoundary(boundary);
 				part_b->AddBoundary(boundary);
 			}
@@ -33,9 +34,9 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 	}
 
 	// Add sources to corresponding partition
-	for (auto partition : partitions_)
+	for (auto partition : m_partitions)
 	{
-		for (auto source : sources_)
+		for (auto source : m_sources)
 		{
 			if (source->x_ >= partition->x_start_ && source->x_ < partition->x_end_ &&
 				source->y_ >= partition->y_start_ && source->y_ < partition->y_end_ &&
@@ -46,15 +47,14 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 		}
 	}
 
-	info_.num_dct_partitions = partitions_.size();
-	info_.num_boundaries = boundaries_.size();
-	info_.num_sources = sources_.size();
+	info_.num_dct_partitions = m_partitions.size();
+	info_.num_boundaries = m_boundaries.size();
+	info_.num_sources = m_sources.size();
 
-
-	// Find adn create PML partitions.
+	// Find and create PML partitions.
 	for (int cnt = 0; cnt < info_.num_dct_partitions; cnt++)
 	{
-		auto partition = partitions_[cnt];
+		auto partition = m_partitions[cnt];
 		int start;
 		int end;
 		bool started;
@@ -76,15 +76,15 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 					auto pml = std::make_shared<PmlPartition>(
 						partition,
 						PmlPartition::P_LEFT,
-						partition->x_start_ - Simulation::n_pml_layers_,
+						partition->x_start_ - Simulation::m_pml_layers,
 						partition->y_start_ + start,
 						partition->z_start_,
-						Simulation::n_pml_layers_,
+						Simulation::m_pml_layers,
 						end - start + 1,
 						partition->depth_);
-					partitions_.push_back(pml);
-					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
-					boundaries_.push_back(boundary);
+					m_partitions.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->m_absorption);
+					m_boundaries.push_back(boundary);
 					info_.num_pml_partitions++;
 					started = false;
 				}
@@ -117,12 +117,12 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 						partition->x_end_,
 						partition->y_start_ + start,
 						partition->z_start_,
-						Simulation::n_pml_layers_,
+						Simulation::m_pml_layers,
 						end - start + 1,
 						partition->depth_);
-					partitions_.push_back(pml);
-					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
-					boundaries_.push_back(boundary);
+					m_partitions.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->m_absorption);
+					m_boundaries.push_back(boundary);
 					info_.num_pml_partitions++;
 					started = false;
 				}
@@ -153,14 +153,14 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 						partition,
 						PmlPartition::P_TOP,
 						partition->x_start_ + start,
-						partition->y_start_ - Simulation::n_pml_layers_,
+						partition->y_start_ - Simulation::m_pml_layers,
 						partition->z_start_,
 						end - start + 1,
-						Simulation::n_pml_layers_,
+						Simulation::m_pml_layers,
 						partition->depth_);
-					partitions_.push_back(pml);
-					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
-					boundaries_.push_back(boundary);
+					m_partitions.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->m_absorption);
+					m_boundaries.push_back(boundary);
 					info_.num_pml_partitions++;
 					started = false;
 				}
@@ -194,11 +194,11 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 						partition->y_end_,
 						partition->z_start_,
 						end - start + 1,
-						Simulation::n_pml_layers_,
+						Simulation::m_pml_layers,
 						partition->depth_);
-					partitions_.push_back(pml);
-					auto boundary = Boundary::FindBoundary(pml, partition, partition->absorption_);
-					boundaries_.push_back(boundary);
+					m_partitions.push_back(pml);
+					auto boundary = Boundary::FindBoundary(pml, partition, partition->m_absorption);
+					m_boundaries.push_back(boundary);
 					info_.num_pml_partitions++;
 					started = false;
 				}
@@ -218,14 +218,14 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 				PmlPartition::P_FRONT,
 				partition->x_start_,
 				partition->y_start_,
-				partition->z_start_ - Simulation::n_pml_layers_,
+				partition->z_start_ - Simulation::m_pml_layers,
 				partition->width_,
 				partition->height_,
-				Simulation::n_pml_layers_);
-			partitions_.push_back(pml);
-			boundaries_.push_back(std::make_shared<Boundary>(
+				Simulation::m_pml_layers);
+			m_partitions.push_back(pml);
+			m_boundaries.push_back(std::make_shared<Boundary>(
 				Boundary::Z_BOUNDARY,
-				partition->absorption_,
+				partition->m_absorption,
 				pml,
 				partition,
 				partition->x_start_,
@@ -248,11 +248,11 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 				partition->z_end_,
 				partition->width_,
 				partition->height_,
-				Simulation::n_pml_layers_);
-			partitions_.push_back(pml);
-			boundaries_.push_back(std::make_shared<Boundary>(
+				Simulation::m_pml_layers);
+			m_partitions.push_back(pml);
+			m_boundaries.push_back(std::make_shared<Boundary>(
 				Boundary::Z_BOUNDARY,
-				partition->absorption_,
+				partition->m_absorption,
 				pml,
 				partition,
 				partition->x_start_,
@@ -272,7 +272,7 @@ Simulation::Simulation(std::vector<std::shared_ptr<Partition>> &partitions, std:
 	x_start_ = y_start_ = z_start_ = std::numeric_limits<int>::max();
 	x_end_ = y_end_ = z_end_ = std::numeric_limits<int>::min();
 
-	for (auto partition : partitions_)
+	for (auto partition : m_partitions)
 	{
 		x_start_ = std::min(x_start_, partition->x_start_);
 		y_start_ = std::min(y_start_, partition->y_start_);
@@ -304,19 +304,20 @@ int Simulation::Update()
 	//std::cout << std::to_string(sources_[0]->SampleValue(time_step)) << " ";
 
 #pragma omp parallel for
-	for (int i = 0; i < partitions_.size(); i++)
+	for (int i = 0; i < m_partitions.size(); i++)
 	{
-		partitions_[i]->ComputeSourceForcingTerms((real_t)time_step);
-		partitions_[i]->Update();
+		m_partitions[i]->ComputeSourceForcingTerms((real_t)time_step);
+		m_partitions[i]->Update();
 		//std::cout << "update partition " << partition->info_.id << " ";
 	}
 #pragma omp parallel for
-	for (int i = 0; i < boundaries_.size(); i++)
+	for (int i = 0; i < m_boundaries.size(); i++)
 	{
-		boundaries_[i]->ComputeForcingTerms();
+		m_boundaries[i]->ComputeForcingTerms();
 	}
 	//std::cout << std::endl;
 
+#if 1
 	// Visualization
 	{
 		SDL_PixelFormat* fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
@@ -324,8 +325,8 @@ int Simulation::Update()
 		bool render_pml = false;
 		if (look_from_ == 0)	//xy
 		{
-			int pixels_z = sources_[0]->z();
-			for (auto partition : partitions_)
+			int pixels_z = m_sources[0]->z();
+			for (auto partition : m_partitions)
 			{
 				if (!render_pml)
 				{
@@ -370,8 +371,8 @@ int Simulation::Update()
 		}
 		else if (look_from_ == 1)	//yz
 		{
-			int pixels_x = sources_[0]->x();
-			for (auto partition : partitions_)
+			int pixels_x = m_sources[0]->x();
+			for (auto partition : m_partitions)
 			{
 				if (!render_pml)
 				{
@@ -416,6 +417,7 @@ int Simulation::Update()
 			}
 		}
 	}
+#endif
 
 	return time_step;
 }
@@ -427,16 +429,16 @@ void Simulation::Info()
 		<< std::to_string(x_start_) << "," << std::to_string(y_start_) << "," << std::to_string(z_start_) << "->"
 		<< std::to_string(x_end_) << "," + std::to_string(y_end_) << "," + std::to_string(z_end_) << std::endl;
 	std::cout << "Size: " << "<" << size_x_ << "," << size_y_ << "," << size_z_ << ">" << std::endl;
-	std::cout << "dh = " << std::to_string(Simulation::dh_)
-		<< "(m), dt = " << std::to_string(Simulation::dt_)
-		<< "(s), c0 = " << std::to_string(Simulation::c0_) << "(m/s)" << std::endl;
+	std::cout << "dh = " << std::to_string(Simulation::m_dh)
+		<< "(m), dt = " << std::to_string(Simulation::m_dt)
+		<< "(s), c0 = " << std::to_string(Simulation::m_c0) << "(m/s)" << std::endl;
 	std::cout << "Number of dct_partitions: " << info_.num_dct_partitions << std::endl;
 	std::cout << "Number of pml_partitions: " << info_.num_pml_partitions << std::endl;
 	std::cout << "Number of boundaries: " << info_.num_boundaries << std::endl;
 	std::cout << "Number of sources: " << info_.num_sources << std::endl;
 
 	std::cout << "############################################################" << std::endl;
-	for (auto p : partitions_)
+	for (auto p : m_partitions)
 	{
 		if (p->info_.type == "DCT")
 			p->Info();
@@ -447,7 +449,7 @@ void Simulation::Info()
 	//	b->Info();
 	//}
 	std::cout << "------------------------------------------------------------" << std::endl;
-	for (auto s : sources_)
+	for (auto s : m_sources)
 	{
 		std::cout << "Source " << s->id_ << ": " << s->x() << "," << s->y() << "," << s->z() << std::endl;
 	}

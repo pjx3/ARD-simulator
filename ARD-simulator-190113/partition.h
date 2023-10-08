@@ -41,7 +41,7 @@ protected:
 	bool is_z_pml_{ false };
 	
 public:
-	static real_t absorption_;
+	static real_t m_absorption;
 
 	Partition(int xs, int ys, int zs, int w, int h, int d);
 	~Partition();

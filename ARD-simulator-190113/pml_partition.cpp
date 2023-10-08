@@ -25,8 +25,8 @@ PmlPartition::PmlPartition(std::shared_ptr<Partition> neighbor_part, PmlType typ
 	if (type_ == P_TOP || type_ == P_BOTTOM) is_y_pml_ = true;
 	if (type_ == P_FRONT || type_ == P_BACK) is_z_pml_ = true;
 
-	thickness_ = Simulation::n_pml_layers_ * dh_;
-	zeta_ = Simulation::c0_ / thickness_ * log10f(1.0f / R_);
+	thickness_ = Simulation::m_pml_layers * dh_;
+	zeta_ = Simulation::m_c0 / thickness_ * log10f(1.0f / R_);
 
 	int size = width_ * height_*depth_ + 1;
 	p_old_ = (real_t *)malloc(size * sizeof(real_t));
@@ -117,9 +117,9 @@ void PmlPartition::Update()
 	int depth = depth_;
 	auto type = type_;
 	auto thickness = thickness_;
-	auto dh = Simulation::dh_;
-	auto dt = Simulation::dt_;
-	auto c0 = Simulation::c0_;
+	auto dh = Simulation::m_dh;
+	auto dt = Simulation::m_dt;
+	auto c0 = Simulation::m_c0;
 	auto zeta = zeta_;
 
 #pragma omp parallel for

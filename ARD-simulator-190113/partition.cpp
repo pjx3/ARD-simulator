@@ -12,9 +12,9 @@ Partition::Partition(int xs, int ys, int zs, int w, int h, int d)
 {
 	static int id_generator = 0;
 	info_.id = id_generator++;
-	dh_ = Simulation::dh_;
-	dt_ = Simulation::dt_;
-	c0_ = Simulation::c0_;
+	dh_ = Simulation::m_dh;
+	dt_ = Simulation::m_dt;
+	c0_ = Simulation::m_c0;
 	x_end_ = x_start_ + width_;
 	y_end_ = y_start_ + height_;
 	z_end_ = z_start_ + depth_;
@@ -162,12 +162,12 @@ std::vector<std::shared_ptr<Partition>> Partition::ImportPartitions(std::string 
 		file >> width >> height >> depth;
 		if (file.eof()) break;
 
-		real_t const x = x_start / Simulation::dh_;
-		real_t const y = y_start / Simulation::dh_;
-		real_t const z = z_start / Simulation::dh_;
-		real_t const w = width / Simulation::dh_;
-		real_t const h = height / Simulation::dh_;
-		real_t const d = depth / Simulation::dh_;
+		real_t const x = x_start / Simulation::m_dh;
+		real_t const y = y_start / Simulation::m_dh;
+		real_t const z = z_start / Simulation::m_dh;
+		real_t const w = width / Simulation::m_dh;
+		real_t const h = height / Simulation::m_dh;
+		real_t const d = depth / Simulation::m_dh;
 
 		partitions.push_back(std::make_shared<DctPartition>((int)x, (int)y, (int)z, (int)w, (int)h, (int)d, vkGPU));
 	}

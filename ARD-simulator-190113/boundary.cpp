@@ -61,13 +61,13 @@ void Boundary::ComputeForcingTerms()
 					{
 						//sip = sip1 + sip2;
 						sip = left->include_self_terms_ ? (sip1 + sip2) : sip2;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::m_c0*Simulation::m_c0) / (180.0f*Simulation::m_dh*Simulation::m_dh);
 						left->set_force(left_x, left_y, left_z, absorption_*fi);
 					}
 					else {
 						//sip = sip1 + sip2;
 						sip = right->include_self_terms_ ? (sip1 + sip2) : sip1;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::m_c0*Simulation::m_c0) / (180.0f*Simulation::m_dh*Simulation::m_dh);
 						right->set_force(right_x, right_y, right_z, absorption_*fi);
 					}
 				}
@@ -109,13 +109,13 @@ void Boundary::ComputeForcingTerms()
 					{
 						//sip = sip1 + sip2;
 						sip = top->include_self_terms_ ? (sip1 + sip2) : sip2;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::m_c0*Simulation::m_c0) / (180.0f*Simulation::m_dh*Simulation::m_dh);
 						top->set_force(top_x, top_y, top_z, absorption_*fi);
 					}
 					else {
 						//sip = sip1 + sip2;
 						sip = bottom->include_self_terms_ ? (sip1 + sip2) : sip1;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::m_c0*Simulation::m_c0) / (180.0f*Simulation::m_dh*Simulation::m_dh);
 						bottom->set_force(bottom_x, bottom_y, bottom_z, absorption_*fi);
 					}
 				}
@@ -157,13 +157,13 @@ void Boundary::ComputeForcingTerms()
 					{
 						//sip = sip1 + sip2;
 						sip = front->include_self_terms_ ? (sip1 + sip2) : sip2;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::m_c0*Simulation::m_c0) / (180.0f*Simulation::m_dh*Simulation::m_dh);
 						front->set_force(front_x, front_y, front_z, absorption_*fi);
 					}
 					else {
 						//sip = sip1 + sip2;
 						sip = back->include_self_terms_ ? (sip1 + sip2) : sip1;
-						fi = sip * (Simulation::c0_*Simulation::c0_) / (180.0f*Simulation::dh_*Simulation::dh_);
+						fi = sip * (Simulation::m_c0*Simulation::m_c0) / (180.0f*Simulation::m_dh*Simulation::m_dh);
 						back->set_force(back_x, back_y, back_z, absorption_*fi);
 					}
 				}

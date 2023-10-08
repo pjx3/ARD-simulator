@@ -9,7 +9,7 @@ Recorder::Recorder(int x, int y, int z, int total_steps)
 	static int id_generator = 0;
 	id_ = id_generator++;
 	std::string filename;
-	std::string dir_name = std::to_string(Simulation::dh_) + "_" + std::to_string(Partition::absorption_);
+	std::string dir_name = std::to_string(Simulation::m_dh) + "_" + std::to_string(Partition::m_absorption);
 	filename = "./output/" + dir_name + "/out_" + std::to_string(id_) + ".txt";
 	output_.open(filename, std::ios::out);
 	filename = "./output/" + dir_name + "/response_" + std::to_string(id_) + ".txt";
@@ -76,10 +76,10 @@ std::vector<std::shared_ptr<Recorder>> Recorder::ImportRecorders(std::string pat
 		file >> x >> y >> z;
 		if (file.eof()) break;
 
-		float const xh = x / Simulation::dh_;
-		float const yh = y / Simulation::dh_;
-		float const zh = z / Simulation::dh_;
-		float const duration = Simulation::duration_ / Simulation::dt_;
+		float const xh = x / Simulation::m_dh;
+		float const yh = y / Simulation::m_dh;
+		float const zh = z / Simulation::m_dh;
+		float const duration = Simulation::m_duration / Simulation::m_dt;
 
 		recorders.push_back(std::make_shared<Recorder>((int)xh, (int)yh, (int)zh, (int)duration));
 	}

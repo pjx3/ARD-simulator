@@ -30,7 +30,7 @@ private:
 	fftwf_plan	m_idct;
 	VkFFT_DCT*	m_vkFFTdct;		// forward DCT (DCT-II)
 	VkFFT_DCT*	m_vkFFTidct;	// inverse DCT (DCT-III)
-	bool		m_gpu{ false };	// use GPU or CPU
+	bool		m_gpu{ true };	// use GPU or CPU
 
 	friend class Partition;
 	friend class DctPartition;

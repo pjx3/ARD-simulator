@@ -26,29 +26,29 @@ bool is_record = true;
 
 /* Set constant parameters. */
 
-real_t Partition::absorption_ = 0.5f;	// Absorption coefficients of the boundaries.
-real_t Simulation::duration_ = 2.0f;	// Duration of the whole simulation (seconds).
+real_t Partition::m_absorption = 1.0f;	// Absorption coefficients of the boundaries.
+real_t Simulation::m_duration = 2.0f;	// Duration of the whole simulation (seconds).
 
-real_t Simulation::dh_ = 0.05f;			// Space sampling rate.
-real_t Simulation::dt_ = 0.625e-4f;		// Time sampling rate.
+//real_t Simulation::m_dh = 0.05f;		// Space sampling rate (cell size 5cm)
+//real_t Simulation::m_dt = 0.625e-4f;	// Time sampling rate (16KHz)
 
-//real_t Simulation::dh_ = 0.1;
-//real_t Simulation::dt_ = 1.25e-4;
+//real_t Simulation::m_dh = 0.1f;			// 10cm
+//real_t Simulation::m_dt = 1.25e-4f;		// 8kHz
 
-//real_t Simulation::dh_ = 0.2;
-//real_t Simulation::dt_ = 2e-4;
+real_t Simulation::m_dh = 10 / 100.0f;		// 10 cm
+real_t Simulation::m_dt = 1.0f / 8000.0f;	// 8 kHz
 
-//real_t Simulation::dh_ = 0.5;
-//real_t Simulation::dt_ = 6.25e-4;
+//real_t Simulation::m_dh = 0.2f;		// 20cm
+//real_t Simulation::m_dt = 2e-4f;		// 5kHz
 
-real_t Simulation::c0_ = 3.435e2f;		// Speed of sound
-int Simulation::n_pml_layers_ = 5;		// Number of pml layers.
+real_t Simulation::m_c0 = 3.435e2f;		// Speed of sound
+int Simulation::m_pml_layers = 5;		// Number of pml layers.
 
 int main()
 {
 	real_t time1 = (real_t)omp_get_wtime();		// Record the beginning time. Used for showing the consuming time.
 
-	std::string dir_name = "./output/" + std::to_string(Simulation::dh_) + "_" + std::to_string(Partition::absorption_);
+	std::string dir_name = "./output/" + std::to_string(Simulation::m_dh) + "_" + std::to_string(Partition::m_absorption);
 	CreateDirectory(dir_name.c_str(), NULL);	// Prepare for the output folder.
 												// ! Without this and the corresponding folder does not exist, the program will not write the output data.
 
@@ -118,7 +118,7 @@ int main()
 
 	bool quit = false;
 	int time_step = 0;
-	int total_time_steps = (int)( Simulation::duration_ / Simulation::dt_ );
+	int total_time_steps = (int)( Simulation::m_duration / Simulation::m_dt );
 	std::string message;
 
 	real_t time2 = (real_t)omp_get_wtime();
@@ -127,6 +127,8 @@ int main()
 
 	while (!quit && time_step < total_time_steps)
 	{
+
+#if 1
 		while (SDL_PollEvent(&event)) {
 			switch (event.type)
 			{
@@ -135,6 +137,7 @@ int main()
 				break;
 			}
 		}
+#endif
 
 		time_step = simulation->Update();		// ! Updating sound field.
 
@@ -147,6 +150,10 @@ int main()
 		}
 
 		message = std::to_string(time_step) + '/' + std::to_string(total_time_steps);
+
+#if 0
+		std::cout << message << std::endl;
+#else
 		SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, message.c_str(), White);
 		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
@@ -167,6 +174,7 @@ int main()
 		SDL_FreeSurface(surfaceMessage);
 		SDL_DestroyTexture(Message);
 		SDL_RenderPresent(renderer);
+#endif
 	}
 
 	SDL_DestroyTexture(texture);

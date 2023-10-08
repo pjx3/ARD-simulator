@@ -11,9 +11,19 @@ class SoundSource;
 
 class Simulation
 {
-	std::vector<std::shared_ptr<Partition>> partitions_;
-	std::vector<std::shared_ptr<Boundary>> boundaries_;
-	std::vector<std::shared_ptr<SoundSource>> sources_;
+	struct Info
+	{
+		size_t num_partitions{ 0 };
+		size_t num_dct_partitions{ 0 };
+		size_t num_pml_partitions{ 0 };
+		size_t num_sources{ 0 };
+		size_t num_boundaries{ 0 };
+		std::vector<std::vector<char>> model_map;
+	};
+
+	std::vector<std::shared_ptr<Partition>>		m_partitions;
+	std::vector<std::shared_ptr<Boundary>>		m_boundaries;
+	std::vector<std::shared_ptr<SoundSource>>	m_sources;
 
 	int x_start_, x_end_;
 	int y_start_, y_end_;
@@ -23,25 +33,17 @@ class Simulation
 
 	bool ready_;
 	std::vector<Uint32> pixels_;
-
-	struct Info
-	{
-		size_t num_partitions{ 0 };
-		size_t num_dct_partitions{ 0 };
-		size_t num_pml_partitions{ 0 };
-		size_t num_sources{ 0 };
-		size_t num_boundaries{ 0 };
-		std::vector<std::vector<char>> model_map;
-	} info_;
+	
+	Info info_;
 
 public:
 
-	static real_t duration_;
+	static real_t m_duration;
 
-	static real_t dh_;
-	static real_t dt_;
-	static real_t c0_;
-	static int n_pml_layers_;
+	static real_t m_dh;
+	static real_t m_dt;
+	static real_t m_c0;
+	static int m_pml_layers;
 
 	int time_step_{ 0 };
 
