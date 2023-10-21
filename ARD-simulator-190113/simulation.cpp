@@ -440,7 +440,7 @@ void Simulation::Info()
 	std::cout << "############################################################" << std::endl;
 	for (auto p : m_partitions)
 	{
-		if (p->info_.type == "DCT")
+		//if (p->info_.type == "DCT")
 			p->Info();
 	}
 	std::cout << "------------------------------------------------------------" << std::endl;
