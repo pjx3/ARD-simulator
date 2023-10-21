@@ -12,13 +12,14 @@ public:
 	DctVolume(int w, int h, int d, VkGPU* vkGPU);
 	~DctVolume();
 
-	void ExcuteDct();
-	void ExcuteIdct();
+	void ExecuteDct();
+	void ExecuteIdct();
 
 	real_t get_value(int x, int y, int z);
 	real_t get_mode(int x, int y, int z);
 	void set_value(int x, int y, int z, real_t v);
 	void set_mode(int x, int y, int z, real_t m);
+	bool is_gpu() const { return m_gpu; }
 
 private:
 	int			m_width;

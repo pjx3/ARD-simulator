@@ -35,7 +35,7 @@ DctVolume::~DctVolume()
 	free(m_modes);
 }
 
-void DctVolume::ExcuteDct()
+void DctVolume::ExecuteDct()
 {
 	// pressure to modes
 	if (m_gpu)	
@@ -51,7 +51,7 @@ void DctVolume::ExcuteDct()
 	}
 }
 
-void DctVolume::ExcuteIdct()
+void DctVolume::ExecuteIdct()
 {
 	// modes to pressure
 	if (m_gpu)	

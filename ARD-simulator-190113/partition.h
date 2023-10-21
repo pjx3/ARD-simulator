@@ -55,11 +55,11 @@ public:
 	virtual real_t get_pressure(int x, int y, int z) = 0;
 	virtual void set_force(int x, int y, int z, real_t f) = 0;
 	virtual std::vector<real_t> get_xy_forcing_plane(int z);
+	virtual void Info();
 
 	void AddBoundary(std::shared_ptr<Boundary> boundary);
 	void AddSource(std::shared_ptr<SoundSource> source);
 	static std::vector<std::shared_ptr<Partition>> ImportPartitions(std::string path, struct VkGPU* vkGPU);
-	void Info();
 
 	void ComputeSourceForcingTerms(real_t t);
 

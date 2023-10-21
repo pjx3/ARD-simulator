@@ -1,12 +1,13 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "dct_partition.h"
+#include <iostream>
 
 
 DctPartition::DctPartition(int xs, int ys, int zs, int w, int h, int d, VkGPU* vkGPU)
 	: Partition(xs, ys, zs, w, h, d)
-	, pressure_(w, h, d, vkGPU)
-	, force_(w, h, d, vkGPU)
+	, m_pressure(w, h, d, vkGPU)
+	, m_force(w, h, d, vkGPU)
 {
 	should_render_ = true;
 	info_.type = "DCT";
@@ -46,7 +47,7 @@ DctPartition::~DctPartition()
 
 void DctPartition::Update()
 {
-	force_.ExcuteDct();
+	m_force.ExecuteDct();
 #if 0
 	for (int i = 0; i < depth_; i++)
 	{
@@ -64,26 +65,26 @@ void DctPartition::Update()
 #else
 	int total = depth_ * height_ * width_;
 	for (int idx = 0; idx < total; idx++)
-		next_modes_[idx] = 0.999f * (2.0f * pressure_.m_modes[idx] * cwt_[idx] - prev_modes_[idx] + (2.0f * force_.m_modes[idx] / w2_[idx]) * (1.0f - cwt_[idx]));
-	memcpy((void*)prev_modes_, (void*)pressure_.m_modes, depth_ * width_ * height_ * sizeof(real_t));
-	memcpy((void*)pressure_.m_modes, (void*)next_modes_, depth_ * width_ * height_ * sizeof(real_t));
+		next_modes_[idx] = 0.999f * (2.0f * m_pressure.m_modes[idx] * cwt_[idx] - prev_modes_[idx] + (2.0f * m_force.m_modes[idx] / w2_[idx]) * (1.0f - cwt_[idx]));
+	memcpy((void*)prev_modes_, (void*)m_pressure.m_modes, depth_ * width_ * height_ * sizeof(real_t));
+	memcpy((void*)m_pressure.m_modes, (void*)next_modes_, depth_ * width_ * height_ * sizeof(real_t));
 #endif
-	pressure_.ExcuteIdct();
+	m_pressure.ExecuteIdct();
 }
 
 real_t* DctPartition::get_pressure_field()
 {
-	return pressure_.m_values;
+	return m_pressure.m_values;
 }
 
 real_t DctPartition::get_pressure(int x, int y, int z)
 {
-	return pressure_.get_value(x, y, z);
+	return m_pressure.get_value(x, y, z);
 }
 
 void DctPartition::set_force(int x, int y, int z, real_t f)
 {
-	force_.set_value(x, y, z, f);
+	m_force.set_value(x, y, z, f);
 }
 
 std::vector<real_t> DctPartition::get_xy_forcing_plane(int z)
@@ -99,7 +100,7 @@ std::vector<real_t> DctPartition::get_xy_forcing_plane(int z)
 
 real_t DctPartition::get_force(int x, int y, int z)
 {
-	return force_.get_value(x, y, z);
+	return m_force.get_value(x, y, z);
 }
 
 std::vector<real_t> DctPartition::get_xy_force_plane(int z)
@@ -111,4 +112,11 @@ std::vector<real_t> DctPartition::get_xy_force_plane(int z)
 		}
 	}
 	return xy_plane;
+}
+
+void DctPartition::Info()
+{
+	Partition::Info();
+	std::cout << "pressure on " << (m_pressure.is_gpu() ? "GPU" : "CPU") << std::endl;
+	std::cout << "force on " << (m_force.is_gpu() ? "GPU" : "CPU") << std::endl;
 }
