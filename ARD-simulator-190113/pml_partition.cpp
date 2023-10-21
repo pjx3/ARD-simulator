@@ -18,7 +18,7 @@ PmlPartition::PmlPartition(std::shared_ptr<Partition> neighbor_part, PmlType typ
 	: Partition(xs, ys, zs, w, h, d), type_(type), neighbor_part_(neighbor_part)
 {
 	include_self_terms_ = false;
-	should_render_ = false;
+	should_render_ = true;
 	info_.type = "PML";
 
 	if (type_ == P_LEFT || type_ == P_RIGHT) is_x_pml_ = true;
